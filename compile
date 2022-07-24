@@ -1,0 +1,3 @@
+#!/bin/bash
+
+g++ -o prog test.cpp utils.cpp -lcurl
