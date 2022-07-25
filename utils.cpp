@@ -2,6 +2,8 @@
 
 #include <curl/curl.h>
 #include <string>
+#include "json.hpp"
+using nlohmann::json;
 
 size_t write_function(void *ptr, size_t size, size_t nmemb, std::string* data) {
     data->append((char*) ptr, size * nmemb);
@@ -28,4 +30,13 @@ std::string get_branch(const std::string& branch_name)
         return response_string;
     }
     return "";
+}
+
+std::map<std::string, json> group_by_arch(const json& packages)
+{
+    std::map<std::string, json> ret;
+    for (const auto& entry : packages) {
+        ret[std::string(entry["arch"])].emplace_back(entry);
+    }
+    return ret;
 }
