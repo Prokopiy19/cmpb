@@ -11,26 +11,29 @@ size_t write_function(void *ptr, size_t size, size_t nmemb, std::string* data) {
     return size * nmemb;
 }
 
-std::string get_branch(const std::string& branch_name)
+std::string curl_get(const std::string& url)
 {
     auto curl = curl_easy_init();
     if (curl) {
-        std::string get_url = "https://rdb.altlinux.org/api/export/branch_binary_packages/" + branch_name;
-        curl_easy_setopt(curl, CURLOPT_URL, get_url.c_str());
+        curl_easy_setopt(curl, CURLOPT_URL, url.c_str());
         
         std::string response_string;
-        std::string header_string;
         curl_easy_setopt(curl, CURLOPT_WRITEFUNCTION, write_function);
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
-        curl_easy_setopt(curl, CURLOPT_HEADERDATA, &header_string);
 
         curl_easy_perform(curl);
         curl_easy_cleanup(curl);
         curl = NULL;
-        
+     
         return response_string;
     }
     return "";
+}
+
+std::string get_branch(const std::string& branch_name)
+{
+    const std::string get_url = "https://rdb.altlinux.org/api/export/branch_binary_packages/";
+    return curl_get(get_url + branch_name);
 }
 
 std::map<std::string, json> group_by_arch(const json& packages)
