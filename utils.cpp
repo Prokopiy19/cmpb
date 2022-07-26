@@ -24,12 +24,20 @@ std::string curl_get(const std::string& url)
         curl_easy_setopt(curl, CURLOPT_WRITEDATA, &response_string);
 
         curl_easy_perform(curl);
+
+        constexpr int SUCCESS_CODE = 200;
+        long response_code;
+        curl_easy_getinfo(curl, CURLINFO_RESPONSE_CODE, &response_code);
+        if (response_code != SUCCESS_CODE) {
+            return FAIL;
+        }
+
         curl_easy_cleanup(curl);
         curl = NULL;
      
         return response_string;
     }
-    return "";
+    return FAIL;
 }
 
 std::string get_archs(const std::string& branch_name)

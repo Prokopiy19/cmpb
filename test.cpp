@@ -9,19 +9,27 @@
 using json = nlohmann::json;
 #define NDEBUG
 
-void prepare_archs(const std::string& branch_name,
+bool prepare_archs(const std::string& branch_name,
                    std::vector<std::string>& archs)
 {
     auto resp = get_archs(branch_name);
+    if (resp == FAIL) {
+        std::cout << "failed to get branch " << branch_name << std::endl;
+        return false;
+    }
     json json_archs = json::parse(resp)["archs"];
     std::transform(json_archs.cbegin(), json_archs.cend(), std::back_inserter(archs), 
         [](const json& object) { return object["arch"]; });
+    return true;
 }
 
 json prepare_branch(const std::string& branch_name,
                     const std::string& arch)
 {
     auto response = get_branch(branch_name, arch);
+    if (response == FAIL) {
+        return nullptr;
+    }
     auto object = json::parse(response);
     auto packages = object["packages"];
     return packages;
@@ -31,14 +39,17 @@ int main(int argc, char **argv)
 {
     if (argc < 3) {
         std::cout << "not enough arguments" << std::endl;
-        return 0;
+        return -2;
     }
     const std::string branch_name0 = argv[1];
     const std::string branch_name1 = argv[2];
     
     std::vector<std::string> archs;
-    prepare_archs(branch_name0, archs);
-    prepare_archs(branch_name1, archs);
+    bool success = prepare_archs(branch_name0, archs);
+        success &= prepare_archs(branch_name1, archs);
+    if (!success) {
+        return -1;
+    }
     std::sort(archs.begin(), archs.end());
     archs.erase(std::unique(archs.begin(), archs.end()), archs.end());
     

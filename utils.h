@@ -16,4 +16,6 @@ json compare_branches(const json& branch0, const json& branch1);
 
 json compare_versions(const json& branch0, const json& branch1);
 
+const std::string FAIL = "";
+
 #endif
