@@ -14,4 +14,6 @@ void sort_by_name(json& packages);
 
 json compare_branches(const json& branch0, const json& branch1);
 
+json compare_versions(const json& branch0, const json& branch1);
+
 #endif

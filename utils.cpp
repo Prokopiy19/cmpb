@@ -3,6 +3,7 @@
 #include <curl/curl.h>
 #include <algorithm>
 #include <string>
+#include <vector>
 #include "json.hpp"
 using nlohmann::json;
 
@@ -53,15 +54,50 @@ void sort_by_name(json& packages)
 json compare_branches(const json& branch0, const json& branch1)
 {
     auto ret = json::array();
-    for (const auto& package0 : branch0) {
-        std::string name = package0["name"];
-        auto l = std::lower_bound(branch1.cbegin(), branch1.cend(), name,
+    for (const auto& p0 : branch0) {
+        std::string name = p0["name"];
+        auto ip1 = std::lower_bound(branch1.cbegin(), branch1.cend(), name,
             [](const auto& lhs, const auto& rhs)
             { return lhs["name"] < rhs; });
-        if (l != branch1.cend() && (*l)["name"] == name)
+        if (ip1 != branch1.cend() && (*ip1)["name"] == name)
             continue;
         else
-            ret.emplace_back(package0);
+            ret.emplace_back(p0);
+    }
+    return ret;
+}
+
+std::vector<int> parse_version(const std::string& input)
+{
+    std::vector<int> result;
+    std::istringstream parser(input);
+    int i;
+    while (parser >> i) {
+        result.push_back(i);
+        parser.get(); //Skip period
+    }
+    return result;
+}
+
+bool less_than_version(const std::string& lhs, const std::string& rhs)
+{
+    auto parsed_lhs = parse_version(lhs);
+    auto parsed_rhs = parse_version(rhs);
+    return std::lexicographical_compare(parsed_lhs.cbegin(), parsed_lhs.cend(),
+                                        parsed_rhs.cbegin(), parsed_rhs.cend());
+}
+
+json compare_versions(const json& branch0, const json& branch1)
+{
+    auto ret = json::array();
+    for (const auto& p0 : branch0) {
+        auto ip1 = std::lower_bound(branch1.cbegin(), branch1.cend(), p0["name"],
+            [](const auto& lhs, const auto& rhs) { return lhs["name"] < rhs; });
+        if (ip1 != branch1.cend() && p0["name"] == (*ip1)["name"]
+                && less_than_version((*ip1)["version"], p0["version"])) {
+            auto& element = ret.emplace_back(p0);
+            element["ver. in 2nd branch"] = (*ip1)["version"];
+        }
     }
     return ret;
 }

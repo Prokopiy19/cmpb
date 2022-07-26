@@ -1,4 +1,5 @@
 #include <iostream>
+#include <fstream>
 #include <iterator>
 #include <map>
 #include <string>
@@ -6,6 +7,7 @@
 #include "json.hpp"
 #include "utils.h"
 using json = nlohmann::json;
+#define NDEBUG
 
 void prepare_archs(const std::string& branch_name,
                    std::vector<std::string>& archs)
@@ -42,14 +44,37 @@ int main(int argc, char **argv)
     
     for (const auto& arch : archs) {
         std::cout << arch << std::endl;
-        auto packages0 = prepare_branch(branch_name0, arch);
-        auto packages1 = prepare_branch(branch_name1, arch);
+        json packages0 = prepare_branch(branch_name0, arch);
+        json packages1 = prepare_branch(branch_name1, arch);
         sort_by_name(packages0);
         sort_by_name(packages1);
-        auto ans = compare_branches(packages0, packages1);
-        for (const auto& result : ans) {
-            std::cout << result << std::endl;
-        }
+        json result1 = compare_branches(packages0, packages1);
+        json result2 = compare_branches(packages1, packages0);
+        json result3 = compare_versions(packages0, packages1);
+
+        json ans1 = {
+            {"description", "все пакеты, которые есть в 1-й но нет во 2-й"},
+            {"packages", result1},
+            {"length", result1.size()}
+        };
+        json ans2 = {
+            {"description", "все пакеты, которые есть в 2-й но их нет во 1-й"},
+            {"packages", result2},
+            {"length", result2.size()}
+
+        };
+        json ans3 = {
+            {"description", "все пакеты, version которых больше в 1-й чем во 2-й"},
+            {"packages", result3},
+            {"length", result3.size()}
+        };
+
+        json ans = {
+            {"arch", arch },
+            {"tasks", {ans1, ans2, ans3}}
+        };
+        std::ofstream record("results_"+arch+".json");
+        record << ans.dump(4);
     }
     return 0;
 }
