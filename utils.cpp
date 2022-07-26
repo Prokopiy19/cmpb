@@ -2,6 +2,7 @@
 
 #include <curl/curl.h>
 #include <algorithm>
+#include <cctype>
 #include <string>
 #include <vector>
 #include "json.hpp"
@@ -74,7 +75,11 @@ std::vector<int> parse_version(const std::string& input)
     int i;
     while (parser >> i) {
         result.push_back(i);
-        parser.get(); //Skip period
+        int c = parser.get(); //Skip period
+        if (std::islower(c)) { // letter at the end (e.g. 4.2a)
+            result.push_back(c - 'a');
+            return result;
+        }
     }
     return result;
 }
