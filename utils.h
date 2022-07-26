@@ -6,6 +6,8 @@
 #include "json.hpp"
 using nlohmann::json;
 
+std::string get_archs(const std::string& branch_name);
+
 std::string get_branch(const std::string& branch_name);
 
 std::map<std::string, json> group_by_arch(const json& packages);

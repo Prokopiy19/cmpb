@@ -30,6 +30,12 @@ std::string curl_get(const std::string& url)
     return "";
 }
 
+std::string get_archs(const std::string& branch_name)
+{
+    const std::string get_url = "https://rdb.altlinux.org/api/site/all_pkgset_archs?branch=";
+    return curl_get(get_url + branch_name);
+}
+
 std::string get_branch(const std::string& branch_name)
 {
     const std::string get_url = "https://rdb.altlinux.org/api/export/branch_binary_packages/";
