@@ -1,4 +1,5 @@
 #include <iostream>
+#include <map>
 #include "json.hpp"
 #include "utils.h"
 using json = nlohmann::json;
@@ -22,14 +23,11 @@ int main(int argc, char **argv)
     const std::string branch_name1 = argv[2];
     auto groups0 = prepare_branch(branch_name0);
     auto groups1 = prepare_branch(branch_name1);
-    std::cout << branch_name0 << std::endl;
-    for (const auto& group : groups0) {
-        std::cout << group.first << ' '  << group.second << std::endl;
-    }
-    std::cout << std::endl;
-    std::cout << branch_name1 << std::endl;
-    for (const auto& group : groups1) {
-        std::cout << group.first << ' '  << group.second << std::endl;
+    sort_by_name(groups0);
+    sort_by_name(groups1);
+    auto ans = compare_branches(groups0, groups1);
+    for (const auto& [arch, result] : ans) {
+        std::cout << arch << ' ' << result << std::endl;
     }
     return 0;
 }
