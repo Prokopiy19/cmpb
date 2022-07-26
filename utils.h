@@ -8,13 +8,10 @@ using nlohmann::json;
 
 std::string get_archs(const std::string& branch_name);
 
-std::string get_branch(const std::string& branch_name);
+std::string get_branch(const std::string& branch_name, const std::string& arch);
 
-std::map<std::string, json> group_by_arch(const json& packages);
+void sort_by_name(json& packages);
 
-void sort_by_name(std::map<std::string, json> groups);
-
-std::map<std::string, json> compare_branches(const std::map<std::string, json>& groups0,
-                                             const std::map<std::string, json>& groups1);
+json compare_branches(const json& branch0, const json& branch1);
 
 #endif

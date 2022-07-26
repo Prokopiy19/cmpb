@@ -36,50 +36,32 @@ std::string get_archs(const std::string& branch_name)
     return curl_get(get_url + branch_name);
 }
 
-std::string get_branch(const std::string& branch_name)
+std::string get_branch(const std::string& branch_name, const std::string& arch)
 {
     const std::string get_url = "https://rdb.altlinux.org/api/export/branch_binary_packages/";
-    return curl_get(get_url + branch_name);
+    return curl_get(get_url + branch_name + "?arch=" + arch);
 }
 
-std::map<std::string, json> group_by_arch(const json& packages)
+void sort_by_name(json& packages)
 {
-    std::map<std::string, json> ret;
-    for (const auto& entry : packages)
-        ret[std::string(entry["arch"])].emplace_back(entry);
-    return ret;
+    std::sort(packages.begin(), packages.end(),
+        [](const auto& lhs, const auto& rhs)
+        { return lhs["name"] < rhs["name"]; });
 }
 
-void sort_by_name(std::map<std::string, json> groups)
+// найти пакеты, которые есть в 1-й ветке, но не в 2-й
+json compare_branches(const json& branch0, const json& branch1)
 {
-    for (auto& [arch, group]: groups) {
-        sort(group.begin(), group.end(),
+    auto ret = json::array();
+    for (const auto& package0 : branch0) {
+        std::string name = package0["name"];
+        auto l = std::lower_bound(branch1.cbegin(), branch1.cend(), name,
             [](const auto& lhs, const auto& rhs)
-            { return lhs["name"] < rhs["name"]; });
-    }
-}
-
-std::map<std::string, json> compare_branches(const std::map<std::string, json>& groups0,
-                                             const std::map<std::string, json>& groups1)
-{
-    std::map<std::string, json> ret;
-    for (const auto& [arch, group0] : groups0) {
-        auto it = groups1.find(arch);
-        if (it == groups1.cend())
+            { return lhs["name"] < rhs; });
+        if (l != branch1.cend() && (*l)["name"] == name)
             continue;
-        const json& group1 = it->second;
-        auto only_in_first = json::array();
-        for (const auto& package0 : group0) {
-            std::string name = package0["name"];
-            auto l = std::lower_bound(group1.cbegin(), group1.cend(), name,
-                [](const auto& lhs, const auto& rhs)
-                { return lhs["name"] < rhs; });
-            if (l != group1.cend() && (*l)["name"] == name)
-                continue;
-            else
-                only_in_first.emplace_back(package0);
-        }
-        ret[arch] = only_in_first;
+        else
+            ret.emplace_back(package0);
     }
     return ret;
 }
