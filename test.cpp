@@ -1,22 +1,19 @@
 #include <iostream>
 #include <iterator>
 #include <map>
+#include <string>
+#include <vector>
 #include "json.hpp"
 #include "utils.h"
 using json = nlohmann::json;
 
-json prepare_archs(const std::string& branch_name0,
-                   const std::string& branch_name1)
+void prepare_archs(const std::string& branch_name,
+                   std::vector<std::string>& archs)
 {
-    auto resp0 = get_archs(branch_name0);
-    auto resp1 = get_archs(branch_name1);
-    json archs0 = json::parse(resp0)["archs"];
-    json archs1 = json::parse(resp1)["archs"];
-    json archs = archs0;
-    std::copy(archs1.cbegin(), archs1.cend(), std::back_inserter(archs));
-    std::sort(archs.begin(), archs.end());
-    archs.erase(std::unique(archs.begin(), archs.end()), archs.end());
-    return archs;
+    auto resp = get_archs(branch_name);
+    json json_archs = json::parse(resp)["archs"];
+    std::transform(json_archs.cbegin(), json_archs.cend(), std::back_inserter(archs), 
+        [](const json& object) { return object["arch"]; });
 }
 
 std::map<std::string, json> prepare_branch(const std::string& branch_name)
@@ -37,7 +34,15 @@ int main(int argc, char **argv)
     const std::string branch_name0 = argv[1];
     const std::string branch_name1 = argv[2];
     
-    json archs = prepare_archs(branch_name0, branch_name1);
+    std::vector<std::string> archs;
+    prepare_archs(branch_name0, archs);
+    prepare_archs(branch_name1, archs);
+    std::sort(archs.begin(), archs.end());
+    archs.erase(std::unique(archs.begin(), archs.end()), archs.end());
+    for (const auto& s : archs) {
+        std::cout << s << ' ';
+    }
+    std::cout << std::endl;
     auto groups0 = prepare_branch(branch_name0);
     auto groups1 = prepare_branch(branch_name1);
     sort_by_name(groups0);
