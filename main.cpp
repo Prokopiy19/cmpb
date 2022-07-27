@@ -1,3 +1,4 @@
+#define NDEBUG
 #include <iostream>
 #include <fstream>
 #include <iterator>
@@ -7,7 +8,6 @@
 #include "json.hpp"
 #include "utils.h"
 using json = nlohmann::json;
-#define NDEBUG
 
 bool prepare_archs(const std::string& branch_name,
                    std::vector<std::string>& archs)
