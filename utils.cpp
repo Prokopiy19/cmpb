@@ -3,6 +3,7 @@
 #include <curl/curl.h>
 #include <algorithm>
 #include <cctype>
+#include <iostream>
 #include <string>
 #include <vector>
 #include "json.hpp"
@@ -40,16 +41,19 @@ std::string curl_get(const std::string& url)
     return FAIL;
 }
 
-std::string get_archs(const std::string& branch_name)
+bool get_archs(const std::string& branch_name,
+                   std::vector<std::string>& archs)
 {
     const std::string get_url = "https://rdb.altlinux.org/api/site/all_pkgset_archs?branch=";
-    return curl_get(get_url + branch_name);
-}
-
-std::string get_branch(const std::string& branch_name, const std::string& arch)
-{
-    const std::string get_url = "https://rdb.altlinux.org/api/export/branch_binary_packages/";
-    return curl_get(get_url + branch_name + "?arch=" + arch);
+    auto resp = curl_get(get_url + branch_name);
+    if (resp == FAIL) {
+        std::cout << "failed to get branch " << branch_name << std::endl;
+        return false;
+    }
+    json json_archs = json::parse(resp)["archs"];
+    std::transform(json_archs.cbegin(), json_archs.cend(), std::back_inserter(archs), 
+        [](const json& object) { return object["arch"]; });
+    return true;
 }
 
 void sort_by_name(json& packages)
@@ -58,6 +62,21 @@ void sort_by_name(json& packages)
         [](const auto& lhs, const auto& rhs)
         { return lhs["name"] < rhs["name"]; });
 }
+
+json get_branch(const std::string& branch_name,
+                    const std::string& arch)
+{
+    const std::string get_url = "https://rdb.altlinux.org/api/export/branch_binary_packages/";
+    auto response = curl_get(get_url + branch_name + "?arch=" + arch);
+    if (response == FAIL) {
+        return nullptr;
+    }
+    auto object = json::parse(response);
+    auto packages = object["packages"];
+    sort_by_name(packages);
+    return packages;
+}
+
 
 // найти пакеты, которые есть в 1-й ветке, но не в 2-й
 json compare_branches(const json& branch0, const json& branch1)

@@ -2,38 +2,11 @@
 #include <iostream>
 #include <fstream>
 #include <iterator>
-#include <map>
 #include <string>
 #include <vector>
 #include "json.hpp"
 #include "utils.h"
 using json = nlohmann::json;
-
-bool prepare_archs(const std::string& branch_name,
-                   std::vector<std::string>& archs)
-{
-    auto resp = get_archs(branch_name);
-    if (resp == FAIL) {
-        std::cout << "failed to get branch " << branch_name << std::endl;
-        return false;
-    }
-    json json_archs = json::parse(resp)["archs"];
-    std::transform(json_archs.cbegin(), json_archs.cend(), std::back_inserter(archs), 
-        [](const json& object) { return object["arch"]; });
-    return true;
-}
-
-json prepare_branch(const std::string& branch_name,
-                    const std::string& arch)
-{
-    auto response = get_branch(branch_name, arch);
-    if (response == FAIL) {
-        return nullptr;
-    }
-    auto object = json::parse(response);
-    auto packages = object["packages"];
-    return packages;
-}
 
 int main(int argc, char **argv)
 {
@@ -45,8 +18,8 @@ int main(int argc, char **argv)
     const std::string branch_name1 = argv[2];
     
     std::vector<std::string> archs;
-    bool success = prepare_archs(branch_name0, archs);
-        success &= prepare_archs(branch_name1, archs);
+    bool success = get_archs(branch_name0, archs);
+        success &= get_archs(branch_name1, archs);
     if (!success) {
         return -1;
     }
@@ -55,10 +28,8 @@ int main(int argc, char **argv)
     
     for (const auto& arch : archs) {
         std::cout << arch << std::endl;
-        json packages0 = prepare_branch(branch_name0, arch);
-        json packages1 = prepare_branch(branch_name1, arch);
-        sort_by_name(packages0);
-        sort_by_name(packages1);
+        json packages0 = get_branch(branch_name0, arch);
+        json packages1 = get_branch(branch_name1, arch);
         json result1 = compare_branches(packages0, packages1);
         json result2 = compare_branches(packages1, packages0);
         json result3 = compare_versions(packages0, packages1);
