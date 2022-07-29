@@ -1,6 +1,6 @@
 ## Dependencies
 
-This program requires libcurl and nlohmann-json.
+Building requires libcurl and nlohmann-json.
 
 ## Building
 
