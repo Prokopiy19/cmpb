@@ -16,8 +16,6 @@ bool get_archs(const std::string& branch_name,
 json get_branch(const std::string& branch_name,
                 const std::string& arch);
 
-void sort_by_name(json& packages);
-
 const std::string FAIL = "";
 
 #endif
