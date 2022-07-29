@@ -4,8 +4,8 @@
 #include <iterator>
 #include <string>
 #include <vector>
-#include "json.hpp"
-#include "utils.h"
+#include <nlohmann/json.hpp>
+#include "../library/cmp_branches.hpp"
 using json = nlohmann::json;
 
 int main(int argc, char **argv)

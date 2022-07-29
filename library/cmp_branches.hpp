@@ -1,9 +1,9 @@
-#ifndef UTILS_H
-#define UTILS_H
+#ifndef CMP_BRANCHES_HPP
+#define CMP_BRANCHES_HPP
 
 #include <string>
 #include <vector>
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 using nlohmann::json;
 
 json compare_branches(const json& branch0, const json& branch1);
