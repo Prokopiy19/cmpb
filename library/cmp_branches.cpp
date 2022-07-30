@@ -83,15 +83,14 @@ json get_branch(const std::string& branch_name,
 json compare_branches(const json& branch0, const json& branch1)
 {
     auto ret = json::array();
-    for (const auto& p0 : branch0) {
-        std::string name = p0["name"];
-        auto ip1 = std::lower_bound(branch1.cbegin(), branch1.cend(), name,
-            [](const auto& lhs, const auto& rhs)
-            { return lhs["name"] < rhs; });
-        if (ip1 != branch1.cend() && (*ip1)["name"] == name)
+    auto it1 = branch1.cbegin();
+    for (auto it0 = branch0.cbegin(); it0 != branch0.cend(); ++it0) {
+        while (it1 != branch1.cend() && (*it1)["name"] < (*it0)["name"])
+            ++it1;
+        if (it1 != branch1.cend() && (*it1)["name"] == (*it0)["name"])
             continue;
         else
-            ret.emplace_back(p0);
+            ret.emplace_back(*it0);
     }
     return ret;
 }
@@ -123,13 +122,14 @@ bool less_than_version(const std::string& lhs, const std::string& rhs)
 json compare_versions(const json& branch0, const json& branch1)
 {
     auto ret = json::array();
-    for (const auto& p0 : branch0) {
-        auto ip1 = std::lower_bound(branch1.cbegin(), branch1.cend(), p0["name"],
-            [](const auto& lhs, const auto& rhs) { return lhs["name"] < rhs; });
-        if (ip1 != branch1.cend() && p0["name"] == (*ip1)["name"]
-                && less_than_version((*ip1)["version"], p0["version"])) {
-            auto& element = ret.emplace_back(p0);
-            element["ver. in 2nd branch"] = (*ip1)["version"];
+    auto it1 = branch1.cbegin();
+    for (auto it0 = branch0.cbegin(); it0 != branch0.cend(); ++it0) {
+        while (it1 != branch1.cend() && (*it1)["name"] < (*it0)["name"])
+            ++it1;
+        if (it1 != branch1.cend() && (*it0)["name"] == (*it1)["name"]
+                && less_than_version((*it1)["version"], (*it0)["version"])) {
+            auto& element = ret.emplace_back(*it0);
+            element["ver. in 2nd branch"] = (*it1)["version"];
         }
     }
     return ret;
