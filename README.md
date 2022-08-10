@@ -4,7 +4,7 @@ Building requires libcurl and nlohmann-json.
 
 ## Building
 
-Run following commands to build library and program:
+Run following commands to build the library and program:
 
 ```sh
 make
