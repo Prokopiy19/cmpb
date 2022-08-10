@@ -12,7 +12,7 @@ bin/shared/cmpb.o : src/cmpb/cmpb.cpp src/cmpb/cmpb.hpp
 
 .PHONY: install
 install:
-	sudo mv bin/shared/libcmpb.so /usr/lib
+	sudo cp bin/shared/libcmpb.so /usr/lib
 	sudo chmod 755 /usr/lib/libcmpb.so
 
 .PHONY: uninstall
