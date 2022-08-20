@@ -1,0 +1,12 @@
+prefix=@prefix@
+exec_prefix=@exec_prefix@
+libdir=@libdir@
+includedir=@includedir@
+
+Name: libcmpb
+Description: Library to compare to get and compare package branches
+Version: @VERSION@
+Requires: nlohmann_json
+Requires.private: libcurl
+Libs: -L${libdir} -lcmpb
+Cflags: -I${includedir}

@@ -5,7 +5,7 @@
 #include <string>
 #include <vector>
 #include <nlohmann/json.hpp>
-#include "cmpb/cmpb.hpp"
+#include "cmpb.hpp"
 using json = nlohmann::json;
 
 int main(int argc, char **argv)
