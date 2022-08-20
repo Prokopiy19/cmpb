@@ -1,0 +1,37 @@
+README
+
+
+DEPENDENCIES
+
+Building requires libcurl and nlohmann-json.
+
+
+BUILDING
+
+Run following commands to build the library and program:
+
+    ./configure
+    make
+    make install
+
+
+USING THE LIBRARY
+
+To link the program with the library, you can use pkg-config:
+
+g++ main.cpp `pkg-config libcmpb --cflags --libs`
+
+
+RUNNING
+
+Run the program:
+
+    dptest {branch} {branch}
+
+where {branch} is a branch name.
+
+For example, you can enter this:
+
+    dptest sisyphus p10
+
+Program will generate .json files with names 'results_{arch}.json' for each architecture.
