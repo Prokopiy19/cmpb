@@ -12,12 +12,12 @@ make
 make install
 ```
 
-## Using library
+## Using the library
 
 To link the program with the library, you can use pkg-config:
 
 ```sh
-g++ main.cpp `pkg-config --cflags --libs`
+g++ main.cpp `pkg-config libcmpb --cflags --libs`
 ```
 
 ## Running
