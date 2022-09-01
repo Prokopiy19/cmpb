@@ -1,3 +1,7 @@
+## cmpb
+
+cmpb is a library for retrieving lists of binary packages of ALT Linux and comparing the received lists.
+
 ## Dependencies
 
 Building requires libcurl and nlohmann-json.
